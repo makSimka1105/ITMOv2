@@ -1,0 +1,21 @@
+# smoke-api после фикса агента, Nest перезапущен на новом билде
+POST /legions anon: 401
+POST /legions user: 403
+POST /legions admin: 201
+GET /files/<icon>: 200 image/png
+DELETE /legions/:id anon: 401
+DELETE /legions/:id user: 403
+DELETE /legions/:id admin: 200
+$ image_refs
+{
+  "files": 0,
+  "references": 0,
+  "orphans": [],
+  "dangling": []
+}
+$ cd server && npm test
+PASS src/auth/admin.guard.spec.ts
+PASS src/files/create-cleanup.spec.ts
+PASS src/files/file.service.spec.ts
+Test Suites: 3 passed, 3 total
+Tests:       19 passed, 19 total

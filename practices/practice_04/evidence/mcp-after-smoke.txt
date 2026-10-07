@@ -1,0 +1,41 @@
+$ inspector --cli node mcp/image-refs/server.js --method tools/call --tool-name image_refs
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"files\": 0,\n  \"references\": 0,\n  \"orphans\": [],\n  \"dangling\": []\n}"
+    }
+  ],
+  "isError": false
+}
+
+$ inspector --cli --config .mcp.json --server mongodb --method tools/call --tool-name find --tool-arg connectionId=preconfigured --tool-arg database=warhammer --tool-arg collection=legions
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Query on collection \"legions\" resulted in 0 documents. Returning 0 documents."
+    }
+  ],
+  "structuredContent": {
+    "documents": [],
+    "queryResultsCount": 0,
+    "appliedLimits": []
+  }
+}
+
+$ inspector --cli --config .mcp.json --server mongodb --method tools/call --tool-name find --tool-arg connectionId=preconfigured --tool-arg database=warhammer --tool-arg collection=images.files
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Query on collection \"images.files\" resulted in 0 documents. Returning 0 documents."
+    }
+  ],
+  "structuredContent": {
+    "documents": [],
+    "queryResultsCount": 0,
+    "appliedLimits": []
+  }
+}
+

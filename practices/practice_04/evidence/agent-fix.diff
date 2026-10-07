@@ -1,0 +1,135 @@
+diff --git a/server/src/events/event.service.ts b/server/src/events/event.service.ts
+index 7307c68..cda0aec 100644
+--- a/server/src/events/event.service.ts
++++ b/server/src/events/event.service.ts
+@@ -23,10 +23,16 @@ export class EventService {
+         }
+         const eventShotsPath = await this.fileService.uploadFiles(shots)
+ 
+-        const event = await this.eventModel.create({
+-            ...dto,
+-            shots: eventShotsPath,
+-        })
++        let event: EventDocument
++        try {
++            event = await this.eventModel.create({
++                ...dto,
++                shots: eventShotsPath,
++            })
++        } catch (error) {
++            await this.fileService.deleteFiles(eventShotsPath)
++            throw error
++        }
+         await this.planetModel.findByIdAndUpdate(
+             dto.place,
+             { $push: { 'events': event._id } },
+diff --git a/server/src/legions/legion.service.ts b/server/src/legions/legion.service.ts
+index f149195..8982ad6 100644
+--- a/server/src/legions/legion.service.ts
++++ b/server/src/legions/legion.service.ts
+@@ -20,13 +20,16 @@ export class LegionService {
+         const legionIconPath = await this.fileService.uploadFile(icon);
+ 
+ 
+-        const legion = await this.legionModel.create({
+-            ...dto,
+-            planets: [],
+-            icon: legionIconPath
+-        })
+-
+-        return legion
++        try {
++            return await this.legionModel.create({
++                ...dto,
++                planets: [],
++                icon: legionIconPath
++            })
++        } catch (error) {
++            await this.fileService.deleteFile(legionIconPath)
++            throw error
++        }
+     }
+ 
+     async getAll(): Promise<Legion[]> {
+diff --git a/server/src/planets/planets.service.ts b/server/src/planets/planets.service.ts
+index f28f688..0d871dc 100644
+--- a/server/src/planets/planets.service.ts
++++ b/server/src/planets/planets.service.ts
+@@ -39,12 +39,18 @@ export class PlanetService {
+             }
+         })
+         const picPath = await this.fileService.uploadFile(pic);
+-        const createdPlanet = await this.planetModel.create({
+-            ...planetData,
+-            pic: picPath,
+-            legions: legionsIds,
++        let createdPlanet: PlanetDocument;
++        try {
++            createdPlanet = await this.planetModel.create({
++                ...planetData,
++                pic: picPath,
++                legions: legionsIds,
+ 
+-        });
++            });
++        } catch (error) {
++            await this.fileService.deleteFile(picPath);
++            throw error;
++        }
+         await Promise.all(legionSelfs.map(async legion => {
+ 
+             legion.planets.push(createdPlanet._id);
+diff --git a/server/src/files/create-cleanup.spec.ts b/server/src/files/create-cleanup.spec.ts
+new file mode 100644
+index 0000000..263ffe1
+--- /dev/null
++++ b/server/src/files/create-cleanup.spec.ts
+@@ -0,0 +1,48 @@
++import { EventService } from 'src/events/event.service';
++import { LegionService } from 'src/legions/legion.service';
++import { PlanetService } from 'src/planets/planets.service';
++
++const PNG = { mimetype: 'image/png', buffer: Buffer.from('png-bytes') } as Express.Multer.File;
++const INSERT_ERROR = new Error('insert failed');
++
++function fileServiceMock() {
++    return {
++        uploadFile: jest.fn().mockResolvedValue('a'.repeat(24) + '.png'),
++        uploadFiles: jest.fn().mockResolvedValue(['b'.repeat(24) + '.png', 'c'.repeat(24) + '.png']),
++        deleteFile: jest.fn().mockResolvedValue(undefined),
++        deleteFiles: jest.fn().mockResolvedValue(undefined),
++    };
++}
++
++describe('create removes uploaded files when the document insert fails', () => {
++    it('legion: deletes the icon and rethrows the insert error', async () => {
++        const files = fileServiceMock();
++        const legionModel = { create: jest.fn().mockRejectedValue(INSERT_ERROR) };
++        const service = new LegionService(legionModel as any, {} as any, files as any);
++
++        await expect(service.create({ name: 'Ultramarines' } as any, PNG)).rejects.toBe(INSERT_ERROR);
++
++        expect(files.deleteFile).toHaveBeenCalledWith('a'.repeat(24) + '.png');
++    });
++
++    it('planet: deletes the pic and rethrows the insert error', async () => {
++        const files = fileServiceMock();
++        const planetModel = { create: jest.fn().mockRejectedValue(INSERT_ERROR) };
++        const service = new PlanetService(planetModel as any, {} as any, {} as any, {} as any, files as any);
++
++        await expect(service.create({ name: 'Macragge' } as any, PNG)).rejects.toBe(INSERT_ERROR);
++
++        expect(files.deleteFile).toHaveBeenCalledWith('a'.repeat(24) + '.png');
++    });
++
++    it('event: deletes every shot and rethrows the insert error', async () => {
++        const files = fileServiceMock();
++        const planetModel = { findById: jest.fn().mockResolvedValue({ _id: 'p1' }) };
++        const eventModel = { create: jest.fn().mockRejectedValue(INSERT_ERROR) };
++        const service = new EventService(eventModel as any, planetModel as any, files as any);
++
++        await expect(service.create({ place: 'p1' } as any, [PNG, PNG])).rejects.toBe(INSERT_ERROR);
++
++        expect(files.deleteFiles).toHaveBeenCalledWith(['b'.repeat(24) + '.png', 'c'.repeat(24) + '.png']);
++    });
++});

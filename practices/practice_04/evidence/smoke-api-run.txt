@@ -1,0 +1,16 @@
+## 1. Sessions
+admin sign-in: 200
+user sign-in: 200
+## 2. POST /legions
+anon: 401
+user: 403
+admin: 201
+created legion 6ac6931f413378829082bad7 icon 6ac6931f413378829082bad5.png
+GET /files/6ac6931f413378829082bad5.png: 200 image/png
+## bad upload (text/plain) as admin
+admin: 400
+## 3. DELETE /legions/:id
+anon: 401
+user: 403
+admin: 200
+GET /files/6ac6931f413378829082bad5.png after delete: 404

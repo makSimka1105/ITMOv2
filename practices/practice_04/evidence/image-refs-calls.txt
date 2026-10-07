@@ -1,0 +1,71 @@
+$ inspector --cli node mcp/image-refs/server.js --method tools/list
+{
+  "tools": [
+    {
+      "name": "image_refs",
+      "title": "GridFS image references",
+      "description": "Read-only. Without arguments: lists GridFS files in bucket \"images\" that no planet/legion/event references (orphans) and references that point to a missing file (dangling). With `name` (`<objectId>.<png|jpg|webp>`): shows who uses that file and whether it exists.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    }
+  ]
+}
+
+$ ... --method tools/call --tool-name image_refs
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"files\": 2,\n  \"references\": 2,\n  \"orphans\": [\n    {\n      \"name\": \"6ac673d50f57dcfdb6122bb7.png\",\n      \"id\": \"6ac673d50f57dcfdb6122bb7\",\n      \"bytes\": 8882,\n      \"uploaded\": \"2026-10-07T16:31:17.367Z\"\n    }\n  ],\n  \"dangling\": [\n    {\n      \"name\": \"6ac673d50f57dcfdb6122bbb.png\",\n      \"referencedBy\": [\n        \"planets/6ac673d50f57dcfdb6122bbc (Smoke Planet).pic\"\n      ]\n    }\n  ]\n}"
+    }
+  ],
+  "isError": false
+}
+
+$ ... --tool-name image_refs --tool-arg name=6ac673d50f57dcfdb6122bb6.png
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"name\": \"6ac673d50f57dcfdb6122bb6.png\",\n  \"exists\": true,\n  \"file\": {\n    \"id\": \"6ac673d50f57dcfdb6122bb6\",\n    \"bytes\": 8882,\n    \"uploaded\": \"2026-10-07T16:31:17.356Z\"\n  },\n  \"referencedBy\": [\n    \"legions/6ac673d50f57dcfdb6122bba (Smoke Legion).icon\"\n  ]\n}"
+    }
+  ],
+  "isError": false
+}
+
+$ ... --tool-name image_refs --tool-arg name=../etc/passwd
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"error\": \"\\\"../etc/passwd\\\" is not a stored image name. Expected <24 hex objectId>.<png|jpg|webp>, e.g. 66f1c0ffee0000000000abcd.png\"\n}"
+    }
+  ],
+  "isError": true
+}
+{"error":{"code":"tool_is_error","message":"Tool 'image_refs' returned isError:true."}}
+
+$ inspector --cli env MONGO_URL=mongodb://localhost:27999/warhammer node mcp/image-refs/server.js --method tools/call --tool-name image_refs   # Mongo недоступна
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"error\": \"MongoDB unavailable: connect ECONNREFUSED 127.0.0.1:27999\"\n}"
+    }
+  ],
+  "isError": true
+}
+{"error":{"code":"tool_is_error","message":"Tool 'image_refs' returned isError:true."}}
