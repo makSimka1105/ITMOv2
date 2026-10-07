@@ -1,6 +1,6 @@
 # Практика 4: среда агента, skill и собственный MCP
 
-Проект: warhammerMap, интерактивная карта галактики WH40k для ролевого сообщества (Next.js 15 + NestJS 11 + MongoDB). Агент: Claude Code. Репозиторий проекта: https://github.com/makSimka1105/warhammerMap
+Проект: warhammerMap, интерактивная карта галактики WH40k для ролевого сообщества (Next.js 15 + NestJS 11 + MongoDB). Агент: Claude Code. Репозиторий проекта: https://github.com/makSimka1105/warhammerMap/tree/course/agents-workflow
 
 Что лежит в этой папке:
 
