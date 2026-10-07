@@ -4,7 +4,7 @@
 
 Что лежит в этой папке:
 
-- `env/` снимок среды из проекта: `AGENTS.md`, `.mcp.json`, `.claude/settings.json` (hook), `.claude/hooks/check-edit.sh`, `.claude/skills/smoke-api/SKILL.md`;
+- `agent-env/` снимок среды из проекта: `AGENTS.md`, `.mcp.json`, `.claude/settings.json` (hook), `.claude/hooks/check-edit.sh`, `.claude/skills/smoke-api/SKILL.md`;
 - `mcp/image-refs/` собственный MCP-сервер (в проекте лежит по тому же пути `mcp/image-refs/`);
 - `evidence/` подтверждения: вызовы MCP, прогоны hook и smoke-api, полный лог агентного прогона `agent-run.jsonl` и дифф его правок `agent-fix.diff`;
 - `reflection.md`.
@@ -13,11 +13,11 @@
 
 | Что | Файл | Зачем |
 |---|---|---|
-| Правила | `env/AGENTS.md` | Архитектура «одна Mongo на всё», поток запросов через прокси Next, env, таблица API, конвенции и проверки. Это то, что не выводится из кода за один проход: почему нельзя заводить второе хранилище и почему клиент не ходит в Nest напрямую. |
-| Skill | `env/.claude/skills/smoke-api/SKILL.md` | Проверка API от трёх ролей (anonymous / user / admin) через тот же прокси, что и браузер. jest не покрывает guard вместе с прокси и cookie, а skill покрывает. |
-| MCP, готовый | `env/.mcp.json` → `mongodb-mcp-server@3.0.5`, `MDB_MCP_READ_ONLY=true` | Смотреть данные без самописных скриптов, без права на запись. |
-| MCP, свой | `env/.mcp.json` → `mcp/image-refs/server.js` | Целостность GridFS: файлы без ссылок и ссылки на несуществующие файлы (см. ниже). |
-| Hook | `env/.claude/settings.json` (PostToolUse на Edit/Write/MultiEdit) → `env/.claude/hooks/check-edit.sh` | После каждой правки TS-файла typecheck пакета и запрет голого `axios` в клиенте. При exit 2 stderr уходит агенту. |
+| Правила | `agent-env/AGENTS.md` | Архитектура «одна Mongo на всё», поток запросов через прокси Next, env, таблица API, конвенции и проверки. Это то, что не выводится из кода за один проход: почему нельзя заводить второе хранилище и почему клиент не ходит в Nest напрямую. |
+| Skill | `agent-env/.claude/skills/smoke-api/SKILL.md` | Проверка API от трёх ролей (anonymous / user / admin) через тот же прокси, что и браузер. jest не покрывает guard вместе с прокси и cookie, а skill покрывает. |
+| MCP, готовый | `agent-env/.mcp.json` → `mongodb-mcp-server@3.0.5`, `MDB_MCP_READ_ONLY=true` | Смотреть данные без самописных скриптов, без права на запись. |
+| MCP, свой | `agent-env/.mcp.json` → `mcp/image-refs/server.js` | Целостность GridFS: файлы без ссылок и ссылки на несуществующие файлы (см. ниже). |
+| Hook | `agent-env/.claude/settings.json` (PostToolUse на Edit/Write/MultiEdit) → `agent-env/.claude/hooks/check-edit.sh` | После каждой правки TS-файла typecheck пакета и запрет голого `axios` в клиенте. При exit 2 stderr уходит агенту. |
 | Runner | `tsc --noEmit`, `npm test` (jest), `npm run build` в `server/` и `client/`; dev Mongo `docker-compose.dev.yml` | Команды из раздела Checks в AGENTS.md. |
 
 Фичи практики делались по схеме A, затем B в отдельной ветке-worktree, затем merge: `feature/upload-hardening`, `feature/server-prod`, `feature/client-prod` (см. `git log`, 2026-10-02).
