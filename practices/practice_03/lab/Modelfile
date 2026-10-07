@@ -1,5 +1,6 @@
 FROM qwen3.5:4b
 PARAMETER num_ctx 4096
+PARAMETER num_thread 8
 PARAMETER temperature 0.2
 SYSTEM """Ты помощник по учебному проекту. Отвечай по предоставленным фактам.
 Если данных нет, напиши «В предоставленных материалах нет ответа».
