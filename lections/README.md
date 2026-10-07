@@ -8,7 +8,7 @@
 | --- | --- |
 | Лекция 1: Из чего состоит ежедневная работа инженера | [Ссылка](https://avito.ktalk.ru/recordings/nW7I3tli2VKvCnlhm2uR) |
 | Лекция 2: LLM и промт инжениринг. Введение в агенты | [Ссылка](https://avito.ktalk.ru/recordings/CkhzAIHktUuQ33NQfDUy) |
-| [Лекция 3: Локальные модели](lection_03/README.md) | |
+| [Лекция 3: Локальные модели](lection_03/README.md) | [Ссылка](https://avito.ktalk.ru/recordings/21b9nTeDH1Mu3QKbqmba) |
 | Лекция 4: Кодинг агенты. Управление контекстом | |
 | Лекция 5: Spec-driven разработка с AI-агентами | |
 | Лекция 6: AI-evaluation: бенчмарки | |
