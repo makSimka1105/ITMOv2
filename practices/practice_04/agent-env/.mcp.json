@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "mongodb": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mongodb-mcp-server@3.0.5"
+      ],
+      "env": {
+        "MDB_MCP_CONNECTION_STRING": "mongodb://localhost:27017/warhammer",
+        "MDB_MCP_READ_ONLY": "true",
+        "MDB_MCP_TELEMETRY": "disabled"
+      }
+    },
+    "image-refs": {
+      "command": "node",
+      "args": [
+        "mcp/image-refs/server.js"
+      ],
+      "env": {
+        "MONGO_URL": "mongodb://localhost:27017/warhammer"
+      }
+    }
+  }
+}

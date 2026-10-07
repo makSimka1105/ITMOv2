@@ -1,0 +1,14 @@
+# 1. client file with bare axios import and a type error
+import axios from "axios";
+
+export const ping = (): Promise<number> => axios.get("/x").then((r) => r.status);
+export const broken: number = "not a number";
+$ echo '{"tool_input":{"file_path":"/home/maksibon/dev/warhammerMap/client/components/hookDemo.ts"}}' | .claude/hooks/check-edit.sh
+client/components/hookDemo.ts imports axios directly. Use { api } from "@/lib/api" so requests carry the session cookie.
+tsc failed in client/:
+components/hookDemo.ts(4,14): error TS2322: Type 'string' is not assignable to type 'number'.
+exit=2
+
+# 2. clean existing file
+$ echo '{"tool_input":{"file_path":"/home/maksibon/dev/warhammerMap/server/src/files/file.service.ts"}}' | .claude/hooks/check-edit.sh
+exit=0
