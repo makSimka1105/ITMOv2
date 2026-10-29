@@ -1,0 +1,33 @@
+--- openspec/changes/add-event-edit-ui/evidence/design-before.md	2026-10-29 02:25:05.154559074 +0300
++++ openspec/changes/add-event-edit-ui/design.md	2026-10-29 02:25:23.773292741 +0300
+@@ -18,6 +18,30 @@
+ - `updateEvent` отправляет JSON, потому что `PUT /events/:id` не разбирает multipart.
+ - После успешного `updateEvent` вызывается та же перезагрузка планет, что после `createEvent`: перенос события меняет хронику двух планет сразу.
+ 
++## Interaction
++
++```mermaid
++sequenceDiagram
++    actor Admin
++    participant Drawer as EventEditDrawer
++    participant Slice as planetSlices
++    participant API as PUT /events/:id
++    participant DB as MongoDB
++    Admin->>Drawer: меняет поля и планету, сохраняет
++    Drawer->>Slice: dispatch(updateEvent)
++    Slice->>API: JSON name, description, link, place
++    API->>DB: сохранить событие
++    API->>DB: $pull из прочих планет, $addToSet в текущую
++    alt 200
++        API-->>Slice: обновлённое событие
++        Slice->>API: перезагрузка планет
++        Slice-->>Drawer: успех, форма закрывается
++    else 400 или 404
++        API-->>Slice: ошибка
++        Slice-->>Drawer: rejectWithValue, форма остаётся открытой с сообщением
++    end
++```
++
+ ## Risks / Trade-offs
+ 
+ - [Перезагрузка всех планет после каждого изменения] → объём данных карты небольшой, тот же подход уже используется для создания и удаления.
